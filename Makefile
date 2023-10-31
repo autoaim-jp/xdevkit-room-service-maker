@@ -60,7 +60,7 @@ make_dummy_cert:
 
 fetch_letsencrypt:
 	@sudo whoami
-	@sudo certbot -d $(origin) certonly --nginx
+	@sudo certbot -d $(origin) certonly --nginx --keep
 
 register_with_nginx:
 	@sudo whoami
