@@ -6,14 +6,14 @@ PHONY=default app help
 
 default: app
 
-app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env bugfix_v0.25 update_port make_dummy_cert start
+app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env bugfix_v0.25 update_port make_dummy_cert fetch_letsencrypt register_with_nginx start
 
 help:
 	@echo "Usage: make app"
 	@echo "Usage: make help"
 
 PROJECT_DIR_PATH := ./project/$(project)
-ERROR_MSG := Usage: make app project=<project dir name> origin=<url like https://client.example.com> port=<server port>
+ERROR_MSG := Usage: make app project=<project dir name> origin=<fqdn like client.example.com> port=<server port>
 
 validation:
 ifndef project
@@ -57,6 +57,17 @@ make_dummy_cert:
 		openssl genrsa 4096 > server.key && \
 		openssl req -new -batch -key server.key > server.csr && \
 		openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt
+
+fetch_letsencrypt:
+	@sudo whoami
+	@sudo certbot -d $(origin) certonly --nginx
+
+register_with_nginx:
+	@sudo whoami
+	@sudo cp setting/nginx-template.conf /etc/nginx/conf.d/`basename $(origin)`.conf
+	@sudo sed -i -e 's/sample.xlogin.jp/$(origin)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
+	@sudo sed -i -e 's/localhost:3001/localhost:$(port)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
+	@sudo systemctl restart nginx
 
 start:
 	@cd $(PROJECT_DIR_PATH)/ && make
