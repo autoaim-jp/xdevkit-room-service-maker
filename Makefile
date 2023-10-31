@@ -6,7 +6,7 @@ PHONY=default app help
 
 default: app
 
-app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env bugfix_v0.25 update_port start
+app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env bugfix_v0.25 update_port make_dummy_cert start
 
 help:
 	@echo "Usage: make app"
@@ -49,6 +49,14 @@ bugfix_v0.25:
 update_port:
 	@sed -i -e 's/3001/$(port)/g' $(PROJECT_DIR_PATH)/app/docker/docker-compose.app.yml
 	@sed -i -e 's/3001/$(port)/g' $(PROJECT_DIR_PATH)/service/staticWeb/src/.env
+
+make_dummy_cert:
+	@cd $(PROJECT_DIR_PATH)/service/staticWeb/src/ && \
+		mkdir ./cert/ && \
+		cd ./cert/ && \
+		openssl genrsa 4096 > server.key && \
+		openssl req -new -batch -key server.key > server.csr && \
+		openssl x509 -days 3650 -req -signkey server.key < server.csr > server.crt
 
 start:
 	@cd $(PROJECT_DIR_PATH)/ && make
