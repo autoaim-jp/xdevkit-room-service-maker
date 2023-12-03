@@ -36,6 +36,7 @@ clean_git:
 setup_xdevkit:
 	@rm -rf $(PROJECT_DIR_PATH)/xdevkit
 	@cd $(PROJECT_DIR_PATH)/ && git submodule add -b ${XDEVKIT_VERSION} https://github.com/autoaim-jp/xdevkit
+	@cd $(PROJECT_DIR_PATH)/ && make init
 
 replace_project_name:
 	@sed -i -e 's/DOCKER_PROJECT_NAME=xljp-sample/DOCKER_PROJECT_NAME=$(project)/' $(PROJECT_DIR_PATH)/setting.conf
@@ -67,7 +68,7 @@ register_with_nginx:
 	@sudo cp setting/nginx-template.conf /etc/nginx/conf.d/`basename $(origin)`.conf
 	@sudo sed -i -e 's/sample.xlogin.jp/$(origin)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
 	@sudo sed -i -e 's/localhost:3001/localhost:$(port)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
-	@sudo systemctl restart nginx
+	@sudo systemctl reload nginx
 
 start:
 	@cd $(PROJECT_DIR_PATH)/ && make
