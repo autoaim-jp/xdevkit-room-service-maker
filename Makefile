@@ -6,7 +6,7 @@ PHONY=default app help
 
 default: app
 
-app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env bugfix_v0.25 update_port make_dummy_cert fetch_letsencrypt register_with_nginx start
+app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx start
 
 help:
 	@echo "Usage: make app"
@@ -43,9 +43,6 @@ replace_project_name:
 
 generate_dot_env:
 	@./core/generateDotEnv.sh $(origin) $(PROJECT_DIR_PATH)/service/staticWeb/src/.env
-
-bugfix_v0.25:
-	@sed -i -e 's/webServer/staticWeb/g' $(PROJECT_DIR_PATH)/service/staticWeb/docker/Dockerfile
 
 update_port:
 	@sed -i -e 's/3001/$(port)/g' $(PROJECT_DIR_PATH)/app/docker/docker-compose.app.yml
