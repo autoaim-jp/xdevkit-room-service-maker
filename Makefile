@@ -6,7 +6,7 @@ PHONY=default app help
 
 default: app
 
-app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx start
+app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port start
 
 help:
 	@echo "Usage: make app"
@@ -40,9 +40,10 @@ setup_xdevkit:
 
 replace_project_name:
 	@sed -i -e 's/DOCKER_PROJECT_NAME=xljp-sample/DOCKER_PROJECT_NAME=$(project)/' $(PROJECT_DIR_PATH)/setting.conf
+	@sed -i -e 's/xlcs-/$(project)-/' $(PROJECT_DIR_PATH)/app/docker/docker-compose.app.yml
 
 generate_dot_env:
-	@./core/generateDotEnv.sh $(origin) $(PROJECT_DIR_PATH)/service/staticWeb/src/.env
+	@./core/generateDotEnv.sh $(origin) $(PROJECT_DIR_PATH)/service/staticWeb/src/.env staticWeb
 
 update_port:
 	@sed -i -e 's/3001/$(port)/g' $(PROJECT_DIR_PATH)/app/docker/docker-compose.app.yml
@@ -66,6 +67,9 @@ register_with_nginx:
 	@sudo sed -i -e 's/sample.xlogin.jp/$(origin)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
 	@sudo sed -i -e 's/localhost:3001/localhost:$(port)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
 	@sudo systemctl reload nginx
+
+save_port:
+	@echo $(port) > last-port.txt
 
 start:
 	@cd $(PROJECT_DIR_PATH)/ && make
