@@ -2,6 +2,7 @@
 
 SERVER_ORIGIN=$1
 DOT_ENV_FILE_PATH=$2
+SERVICE_NAME=$3
 
 function setRandom() {
   RND=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $1 | head -1)
@@ -18,6 +19,7 @@ echo "CLIENT_ID: $CLIENT_ID"
 echo "CLIENT_SECRET: $CLIENT_SECRET"
 
 cat <<EOF > ${DOT_ENV_FILE_PATH}
+SERVICE_NAME=${SERVICE_NAME}
 SERVER_PORT=3001
 SERVER_ORIGIN=https://${SERVER_ORIGIN}
 TLS_KEY_PATH='cert/server.key'

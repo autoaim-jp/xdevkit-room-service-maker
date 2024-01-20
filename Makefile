@@ -6,7 +6,7 @@ PHONY=default app help
 
 default: app
 
-app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env bugfix_v0.25 update_port make_dummy_cert fetch_letsencrypt register_with_nginx start
+app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port start
 
 help:
 	@echo "Usage: make app"
@@ -36,15 +36,14 @@ clean_git:
 setup_xdevkit:
 	@rm -rf $(PROJECT_DIR_PATH)/xdevkit
 	@cd $(PROJECT_DIR_PATH)/ && git submodule add -b ${XDEVKIT_VERSION} https://github.com/autoaim-jp/xdevkit
+	@cd $(PROJECT_DIR_PATH)/ && make init
 
 replace_project_name:
 	@sed -i -e 's/DOCKER_PROJECT_NAME=xljp-sample/DOCKER_PROJECT_NAME=$(project)/' $(PROJECT_DIR_PATH)/setting.conf
+	@sed -i -e 's/xlcs-/$(project)-/' $(PROJECT_DIR_PATH)/app/docker/docker-compose.app.yml
 
 generate_dot_env:
-	@./core/generateDotEnv.sh $(origin) $(PROJECT_DIR_PATH)/service/staticWeb/src/.env
-
-bugfix_v0.25:
-	@sed -i -e 's/webServer/staticWeb/g' $(PROJECT_DIR_PATH)/service/staticWeb/docker/Dockerfile
+	@./core/generateDotEnv.sh $(origin) $(PROJECT_DIR_PATH)/service/staticWeb/src/.env staticWeb
 
 update_port:
 	@sed -i -e 's/3001/$(port)/g' $(PROJECT_DIR_PATH)/app/docker/docker-compose.app.yml
@@ -67,7 +66,10 @@ register_with_nginx:
 	@sudo cp setting/nginx-template.conf /etc/nginx/conf.d/`basename $(origin)`.conf
 	@sudo sed -i -e 's/sample.xlogin.jp/$(origin)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
 	@sudo sed -i -e 's/localhost:3001/localhost:$(port)/g' /etc/nginx/conf.d/`basename $(origin)`.conf
-	@sudo systemctl restart nginx
+	@sudo systemctl reload nginx
+
+save_port:
+	@echo $(port) > last-port.txt
 
 start:
 	@cd $(PROJECT_DIR_PATH)/ && make
