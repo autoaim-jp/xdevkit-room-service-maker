@@ -15,8 +15,11 @@ CLIENT_SECRET=$RND
 setRandom 32
 SESSION_SECRET=$RND
 
+echo "=================================================="
+echo "====== Register this param to auth server. ======="
 echo "CLIENT_ID: $CLIENT_ID"
 echo "CLIENT_SECRET: $CLIENT_SECRET"
+echo "=================================================="
 
 cat <<EOF > ${DOT_ENV_FILE_PATH}
 SERVICE_NAME=${SERVICE_NAME}

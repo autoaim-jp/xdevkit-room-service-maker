@@ -6,7 +6,7 @@ PHONY=default app help
 
 default: app
 
-app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port git_commit_push start
+app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port git_commit_push show_develop_hint start
 
 help:
 	@echo "Usage: make app"
@@ -75,6 +75,11 @@ git_commit_push:
 	@cd $(PROJECT_DIR_PATH) && git config user.email ${GIT_EMAIL} && git config user.user ${GIT_USER}
 	@cd $(PROJECT_DIR_PATH) && git add . && git commit -a -m 'generated from xdevkit-starter'
 	@cd $(PROJECT_DIR_PATH) && gh repo create --push --${GIT_VISIBILITY} --source=.
+
+show_develop_hint:
+	@echo "=================================================="
+	@echo "Before edit logo and title, switch branch!"
+	@echo "=================================================="
 
 start:
 	@cd $(PROJECT_DIR_PATH)/ && make
