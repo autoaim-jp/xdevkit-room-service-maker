@@ -6,7 +6,7 @@ PHONY=default app help
 
 default: app
 
-app: validation git_clone_template clean_git setup_xdevkit replace_project_name generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port git_commit_push show_develop_hint start
+app: validation git_clone_template clean_git setup_xdevkit replace_project_name replace_xdevkit_version generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port git_commit_push show_develop_hint start
 
 help:
 	@echo "Usage: make app"
@@ -14,6 +14,7 @@ help:
 
 PROJECT_DIR_PATH := ./project/$(project)
 ERROR_MSG := Usage: make app project=<project dir name> origin=<fqdn like client.example.com> port=<server port>
+BRANCH := `git branch --contains | cut -d " " -f 2 | tr -d '\n'`
 
 validation:
 ifndef project
@@ -41,6 +42,9 @@ setup_xdevkit:
 replace_project_name:
 	@sed -i -e 's/DOCKER_PROJECT_NAME=xljp-sample/DOCKER_PROJECT_NAME=$(project)/' $(PROJECT_DIR_PATH)/setting.conf
 	@sed -i -e 's/xlcs-/$(project)-/' $(PROJECT_DIR_PATH)/app/docker/docker-compose.app.yml
+
+replace_xdevkit_version:
+	@sed -i -e "s/XDEVKIT_VERSION=.*/XDEVKIT_VERSION=$(BRANCH)/" $(PROJECT_DIR_PATH)/setting.conf
 
 generate_dot_env:
 	@./core/generateDotEnv.sh $(origin) $(PROJECT_DIR_PATH)/service/staticWeb/src/.env staticWeb
