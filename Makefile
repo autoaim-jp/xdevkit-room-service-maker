@@ -6,13 +6,13 @@ PHONY=default create-app create-pull-request help
 
 default: create-app
 
-create-app: create_app_validation git_clone_template clean_git setup_xdevkit replace_project_name replace_xdevkit_version generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port git_commit_push show_develop_hint start
+create-app: create_app_validation git_clone_template clean_git setup_xdevkit replace_project_name replace_xdevkit_version generate_dot_env update_port make_dummy_cert fetch_letsencrypt register_with_nginx save_port git_commit_push git_set_secret_slack show_develop_hint start
 
 create-pull-request: create_pull_request_validation create_pull_request
 
 help:
 	@echo "Usage: "
-	@echo "	make create-app project=<project dir name> origin=<fqdn like client.example.com> port=<server port>"
+	@echo "	make create-app project=<project dir name> origin=<fqdn like client.example.com> port=<server port> slack=<slack webhook url for GitHub actions>"
 	@echo "	make create-pull-request project=<project dir name> version=<branch to merge>"
 	@echo "	make help"
 
@@ -28,6 +28,9 @@ ifndef origin
 	$(error $(ERROR_MSG))
 endif
 ifndef port
+	$(error $(ERROR_MSG))
+endif
+ifndef slack
 	$(error $(ERROR_MSG))
 endif
 
@@ -94,6 +97,11 @@ git_commit_push:
 	@cd $(PROJECT_DIR_PATH) && git config user.email ${GIT_EMAIL} && git config user.user ${GIT_USER}
 	@cd $(PROJECT_DIR_PATH) && git add . && git commit -a -m 'generated from xdevkit-starter'
 	@cd $(PROJECT_DIR_PATH) && gh repo create --push --${GIT_VISIBILITY} --source=.
+
+
+git_set_secret_slack:
+	@cd $(PROJECT_DIR_PATH) && gh secret set MY_GITHUB_CHANNEL_WEBHOOK_URL --body $(slack)
+
 
 show_develop_hint:
 	@echo "=================================================="
