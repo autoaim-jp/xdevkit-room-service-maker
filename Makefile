@@ -43,7 +43,7 @@ ifndef version
 endif
 
 create_pull_request:
-	@cd $(PROJECT_DIR_PATH) && gh pr create --base master --head $(version) --title "merge: $(version) from xdevkit-room-service-maker" --body ""
+	@cd $(PROJECT_DIR_PATH) && git push origin $(version) && gh pr create --base master --head $(version) --title "merge: $(version) by xdevkit-room-service-maker" --body ""
 
 git_clone_template:
 	@git clone https://github.com/autoaim-jp/xlogin-jp-client-sample $(PROJECT_DIR_PATH)
